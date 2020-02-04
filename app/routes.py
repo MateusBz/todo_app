@@ -7,7 +7,7 @@ from app.forms import LoginForm
 from app.models import User
 from app import db
 from app.forms import RegistrationForm
-
+from app.forms import EditProfileForm
 
 @app.route('/')
 @app.route('/index')
@@ -40,10 +40,23 @@ def login():
     return render_template('login.html', form=form, title='Sign In')
 
 
+@app.route('/user/<username>')
+@login_required
+def user(username):
+    user = User.query.filter_by(username=username).first_or_404()
+    tasks = [
+        'Python Learning',
+        'Go swim',
+        'Go to school'
+    ]
+    return render_template('user.html', user=user, tasks=tasks)
+
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
 
 @app.route('/register', methods=["GET", "POST"])
 def register():
@@ -58,3 +71,17 @@ def register():
         flash('Congratulation, you are now a register user!')
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
+
+
+@app.route('/edit_profile', methods=["GET", "POST"])
+@login_required
+def edit_profile():
+    form = EditProfileForm()
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        db.session.commit()
+        flash('Your changes have been saved.')
+        return redirect(url_for('edit_profile'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+    return render_template('edit_profile.html', title='Edit Profile', form=form)
