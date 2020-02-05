@@ -8,23 +8,44 @@ from app.models import User
 from app import db
 from app.forms import RegistrationForm
 from app.forms import EditProfileForm
+from app.forms import TaskForm
+from app.models import Task
+
 
 @app.route('/')
 @app.route('/index')
-@login_required
 def index():
-    tasks = [
-        'Python Learning',
-        'Go swim',
-        'Go to school'
-    ]
-    return render_template('index.html', title='Home', tasks=tasks)
+    return render_template('index.html')
+
+
+@app.route('/delete/<int:task_id>')
+def delete_task(task_id):
+    task = Task.query.get(task_id)
+    if task is None:
+        return redirect(url_for('home'))
+    db.session.delete(task)
+    db.session.commit()
+    return redirect(url_for('home'))
+
+
+@app.route('/home', methods=["GET", "POST"])
+@login_required
+def home():
+    form = TaskForm()
+    if form.validate_on_submit():
+        task = Task(body=form.task.data, author=current_user)
+        db.session.add(task)
+        db.session.commit()
+        flash('Your task is added.')
+        return redirect(url_for('home'))
+    tasks = Task.query.filter_by(user_id=current_user.id)
+    return render_template('home.html', title='Home', form=form, tasks=tasks)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -34,7 +55,7 @@ def login():
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
+            next_page = url_for('home')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
@@ -43,12 +64,7 @@ def login():
 @login_required
 def user(username):
     user = User.query.filter_by(username=username).first_or_404()
-    tasks = [
-        'Python Learning',
-        'Go swim',
-        'Go to school'
-    ]
-    return render_template('user.html', user=user, tasks=tasks)
+    return render_template('user.html', user=user)
 
 
 @app.route('/logout')
@@ -60,7 +76,7 @@ def logout():
 @app.route('/register', methods=["GET", "POST"])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('index'))
+        return redirect(url_for('home'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)

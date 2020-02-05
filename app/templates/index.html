@@ -1,10 +1,6 @@
 {% extends 'base.html' %}
 {% block content%}
-    <h1>Hi {{current_user.username}}</h1>
-    <ul>
-        {% for task in tasks%}
-        <li><p>{{ task }}</p></li>
-    {% endfor%}
-    </ul>
+    <h1>Welcome to Todo App</h1>
+
 
 {% endblock content%}
