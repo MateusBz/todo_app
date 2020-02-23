@@ -36,9 +36,8 @@ def home():
         task = Task(body=form.task.data, author=current_user)
         db.session.add(task)
         db.session.commit()
-        flash('Your task is added.')
         return redirect(url_for('home'))
-    tasks = Task.query.filter_by(user_id=current_user.id)
+    tasks = Task.query.all()
     return render_template('home.html', title='Home', form=form, tasks=tasks)
 
 
