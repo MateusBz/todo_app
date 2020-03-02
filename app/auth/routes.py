@@ -11,7 +11,7 @@ from app.auth import bp
 @bp.route('/')
 @bp.route('/index')
 def index():
-    return render_template('auth/index.html')
+    return render_template('index.html')
 
 
 @bp.route('/login', methods=['GET', 'POST'])
