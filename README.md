@@ -2,7 +2,8 @@
 
 This is my first application in Flask. This is a simple "CRUD" application for task management. In the future, I want to add email authentication, password reset, extension of profile editing and improve RWD.
 
-
+Live View:
+[https://flask-my-todo-app.herokuapp.com/]()
 
 Installing:
 - Clone the repository.
