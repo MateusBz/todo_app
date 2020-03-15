@@ -30,6 +30,11 @@ class UserModelCase(unittest.TestCase):
         self.assertTrue(User.query.filter_by(username='mat'))
         self.assertTrue(User.query.filter_by(username='john'))
 
+    def test_password_setter(self):
+        u = User(username='john')
+        u.set_password('123')
+        self.assertTrue(u.password_hash is not None)
+
     def test_password_hashing(self):
         u = User(username='mat')
         u.set_password('123')
